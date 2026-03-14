@@ -13,7 +13,8 @@ import {
   LinearProgress,
   Paper,
   CircularProgress,
-  Alert
+  Alert,
+  Snackbar
 } from '@mui/material';
 import { ArrowLeft, CheckCircle2, AlertCircle, Camera, Edit2 } from 'lucide-react';
 
@@ -79,6 +80,7 @@ export default function VehicleConfirmationScreen() {
   const [pakistanVehicleData, setPakistanVehicleData] = useState<PakistanVehicleData | null>(null);
   const [isVerifyingWithAPI, setIsVerifyingWithAPI] = useState(false);
   const [apiVerificationComplete, setApiVerificationComplete] = useState(false);
+  const [feedback, setFeedback] = useState('');
 
   useEffect(() => {
     // Load vehicle data from session storage
@@ -107,7 +109,7 @@ export default function VehicleConfirmationScreen() {
 
   const runVehicleChecks = async () => {
     if (!registration.trim()) {
-      alert('Please enter the vehicle registration number');
+      setFeedback('Enter the registration number first.');
       return;
     }
 
@@ -164,7 +166,7 @@ export default function VehicleConfirmationScreen() {
 
   const handleConfirm = () => {
     if (!registration.trim()) {
-      alert('Please enter the vehicle registration number');
+      setFeedback('Enter the registration number first.');
       return;
     }
 
@@ -446,11 +448,7 @@ export default function VehicleConfirmationScreen() {
                       py: 1.5, 
                       fontWeight: 600,
                       borderColor: '#9C27B0',
-                      color: '#9C27B0',
-                      '&:hover': { 
-                        borderColor: '#7B1FA2',
-                        bgcolor: 'rgba(156, 39, 176, 0.04)'
-                      }
+                      color: '#9C27B0'
                     }}
                   >
                     {isVerifyingWithAPI ? (
@@ -854,6 +852,17 @@ export default function VehicleConfirmationScreen() {
           Start vehicle inspection
         </Button>
       </Container>
+
+      <Snackbar
+        open={Boolean(feedback)}
+        autoHideDuration={3000}
+        onClose={() => setFeedback('')}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert severity="info" onClose={() => setFeedback('')} sx={{ width: '100%' }}>
+          {feedback}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }

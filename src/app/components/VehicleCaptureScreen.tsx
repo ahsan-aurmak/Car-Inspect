@@ -11,7 +11,9 @@ import {
   Paper,
   Card,
   CardContent,
-  TextField
+  TextField,
+  Snackbar,
+  Alert
 } from '@mui/material';
 import { ArrowLeft, Camera, Upload, Trash2, Video, Mic, StopCircle, Play, Pause, Square } from 'lucide-react';
 
@@ -33,6 +35,7 @@ export default function VehicleCaptureScreen() {
   const [hasRecording, setHasRecording] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackProgress, setPlaybackProgress] = useState(0);
+  const [feedback, setFeedback] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadInputRef = useRef<HTMLInputElement>(null);
   const playbackIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -65,7 +68,7 @@ export default function VehicleCaptureScreen() {
     if (!file) return;
 
     if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
-      alert('Please select an image or video file');
+      setFeedback('Choose a photo or video to continue.');
       return;
     }
 
@@ -241,7 +244,7 @@ export default function VehicleCaptureScreen() {
       : capturedMedia;
 
     if (allMedia.length === 0) {
-      alert('Please capture at least one media item of the vehicle');
+      setFeedback('Capture at least one photo or video first.');
       return;
     }
 
@@ -347,8 +350,7 @@ export default function VehicleCaptureScreen() {
                 borderRadius: 3,
                 mb: 3,
                 border: '2px dashed #ccc',
-                cursor: 'pointer',
-                '&:hover': {
+                '&:active': {
                   bgcolor: '#eeeeee',
                   borderColor: '#9C27B0'
                 }
@@ -436,7 +438,7 @@ export default function VehicleCaptureScreen() {
                           bgcolor: 'rgba(0, 0, 0, 0.6)',
                           color: '#fff',
                           padding: '6px',
-                          '&:hover': {
+                          '&:active': {
                             bgcolor: 'rgba(0, 0, 0, 0.8)'
                           }
                         }}
@@ -494,7 +496,7 @@ export default function VehicleCaptureScreen() {
                   right: 12,
                   bgcolor: 'rgba(0, 0, 0, 0.6)',
                   color: '#fff',
-                  '&:hover': {
+                  '&:active': {
                     bgcolor: 'rgba(0, 0, 0, 0.8)'
                   }
                 }}
@@ -534,7 +536,6 @@ export default function VehicleCaptureScreen() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      cursor: 'pointer',
                       '&:active': {
                         transform: 'scale(0.95)'
                       },
@@ -632,7 +633,7 @@ export default function VehicleCaptureScreen() {
                       width: 44,
                       height: 44,
                       flexShrink: 0,
-                      '&:hover': {
+                      '&:active': {
                         bgcolor: '#1587BA'
                       }
                     }}
@@ -681,7 +682,7 @@ export default function VehicleCaptureScreen() {
                     sx={{
                       color: '#999',
                       flexShrink: 0,
-                      '&:hover': {
+                      '&:active': {
                         bgcolor: 'rgba(0, 0, 0, 0.04)',
                         color: '#f44336'
                       }
@@ -788,7 +789,7 @@ export default function VehicleCaptureScreen() {
                           bgcolor: 'rgba(0, 0, 0, 0.6)',
                           color: '#fff',
                           padding: '6px',
-                          '&:hover': {
+                          '&:active': {
                             bgcolor: 'rgba(0, 0, 0, 0.8)'
                           }
                         }}
@@ -815,8 +816,7 @@ export default function VehicleCaptureScreen() {
                 borderRadius: 3,
                 mb: 3,
                 border: '2px dashed #ccc',
-                cursor: 'pointer',
-                '&:hover': {
+                '&:active': {
                   bgcolor: '#eeeeee',
                   borderColor: '#9C27B0'
                 }
@@ -864,6 +864,17 @@ export default function VehicleCaptureScreen() {
           </Box>
         )}
       </Container>
+
+      <Snackbar
+        open={Boolean(feedback)}
+        autoHideDuration={3000}
+        onClose={() => setFeedback('')}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert severity="info" onClose={() => setFeedback('')} sx={{ width: '100%' }}>
+          {feedback}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }

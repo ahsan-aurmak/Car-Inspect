@@ -7,7 +7,8 @@ import {
   Typography, 
   Box, 
   Button,
-  Chip
+  Chip,
+  Drawer
 } from '@mui/material';
 import { ClipboardList, History, Plus, Circle, FileText, Clock } from 'lucide-react';
 import BottomNavigation from './BottomNavigation';
@@ -16,6 +17,8 @@ import { getAllDrafts, resumeInspection, deleteDraft, InspectionProgress } from 
 
 export default function DashboardScreen() {
   const navigate = useNavigate();
+  const [drafts, setDrafts] = useState<InspectionProgress[]>([]);
+  const [draftToDelete, setDraftToDelete] = useState<InspectionProgress | null>(null);
 
   // Clean up old localStorage key (migration)
   useEffect(() => {
@@ -39,8 +42,9 @@ export default function DashboardScreen() {
   const savedReports = JSON.parse(localStorage.getItem('savedReports') || '[]');
   const reportsCount = savedReports.length;
 
-  // Get saved drafts
-  const drafts = getAllDrafts();
+  useEffect(() => {
+    setDrafts(getAllDrafts());
+  }, []);
 
   const handleResumeDraft = (draft: InspectionProgress) => {
     resumeInspection(draft);
@@ -48,10 +52,15 @@ export default function DashboardScreen() {
   };
 
   const handleDeleteDraft = (draftId: string) => {
-    if (confirm('Delete this draft? This action cannot be undone.')) {
-      deleteDraft(draftId);
-      window.location.reload();
-    }
+    const draft = drafts.find((item) => item.id === draftId) || null;
+    setDraftToDelete(draft);
+  };
+
+  const confirmDeleteDraft = () => {
+    if (!draftToDelete) return;
+    deleteDraft(draftToDelete.id);
+    setDrafts(getAllDrafts());
+    setDraftToDelete(null);
   };
 
   const formatTimestamp = (timestamp: number) => {
@@ -199,15 +208,9 @@ export default function DashboardScreen() {
           <Card
             sx={{ 
               boxShadow: 2, 
-              cursor: 'pointer', 
               transition: 'transform 0.2s',
               '&:active': { 
                 transform: 'scale(0.98)' 
-              },
-              '@media (min-width: 768px)': {
-                '&:hover': { 
-                  transform: 'scale(1.02)' 
-                }
               }
             }}
             onClick={() => navigate('/inspection-type')}
@@ -243,15 +246,9 @@ export default function DashboardScreen() {
           <Card
             sx={{ 
               boxShadow: 2, 
-              cursor: 'pointer', 
               transition: 'transform 0.2s',
               '&:active': { 
                 transform: 'scale(0.98)' 
-              },
-              '@media (min-width: 768px)': {
-                '&:hover': { 
-                  transform: 'scale(1.02)' 
-                }
               }
             }}
             onClick={() => navigate('/reports-history')}
@@ -336,6 +333,29 @@ export default function DashboardScreen() {
       </Container>
 
       <BottomNavigation />
+
+      <Drawer
+        anchor="bottom"
+        open={Boolean(draftToDelete)}
+        onClose={() => setDraftToDelete(null)}
+      >
+        <Box sx={{ p: 3 }}>
+          <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
+            Delete draft?
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+            This draft will be removed from this device and cannot be restored.
+          </Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            <Button variant="contained" color="error" size="large" onClick={confirmDeleteDraft}>
+              Delete draft
+            </Button>
+            <Button variant="text" size="large" onClick={() => setDraftToDelete(null)}>
+              Keep draft
+            </Button>
+          </Box>
+        </Box>
+      </Drawer>
     </div>
   );
 }

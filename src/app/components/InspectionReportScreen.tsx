@@ -11,7 +11,8 @@ import {
   Chip,
   FormControlLabel,
   Checkbox,
-  IconButton
+  IconButton,
+  Snackbar
 } from '@mui/material';
 import { ArrowLeft, Building2, Calendar, Clock, FileText, Share2, Upload, CheckSquare, Save } from 'lucide-react';
 import OfflineIndicator, { useOnlineStatus } from './OfflineIndicator';
@@ -25,6 +26,10 @@ export default function InspectionReportScreen() {
   const [showSaveDraftModal, setShowSaveDraftModal] = useState(false);
   const [observations, setObservations] = useState<any[]>([]);
   const [selectedObservations, setSelectedObservations] = useState<Set<string>>(new Set());
+  const [feedback, setFeedback] = useState<{ message: string; severity: 'success' | 'error' | 'info' }>({
+    message: '',
+    severity: 'info',
+  });
   const vehicleName = sessionStorage.getItem('selectedVehicleName') || 'Unknown Vehicle';
   const inspectionType = sessionStorage.getItem('inspectionType') || 'unknown';
   const isOnline = useOnlineStatus();
@@ -67,7 +72,7 @@ export default function InspectionReportScreen() {
 
   const handleSubmitToPlatform = () => {
     if (selectedObservations.size === 0) {
-      alert('Please select at least one observation to submit to Platform');
+      setFeedback({ message: 'Select at least one observation to continue.', severity: 'info' });
       return;
     }
     
@@ -203,12 +208,28 @@ export default function InspectionReportScreen() {
       );
     } catch (error) {
       console.error('Error generating PDF:', error);
-      alert('Failed to generate PDF. Please try again.');
+      setFeedback({ message: 'PDF export failed. Please try again.', severity: 'error' });
     }
   };
 
-  const handleShareReport = () => {
-    alert('Share functionality would be implemented here');
+  const handleShareReport = async () => {
+    const shareText = `${vehicleName} inspection report with ${observations.length} observation${observations.length === 1 ? '' : 's'}.`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Vehicle inspection report',
+          text: shareText,
+        });
+      } catch (error) {
+        if ((error as Error).name !== 'AbortError') {
+          setFeedback({ message: 'Unable to open the share sheet right now.', severity: 'error' });
+        }
+      }
+      return;
+    }
+
+    setFeedback({ message: 'Sharing is not available on this device.', severity: 'info' });
   };
 
   const priorityCounts = {
@@ -410,6 +431,21 @@ export default function InspectionReportScreen() {
           navigate('/dashboard');
         }}
       />
+
+      <Snackbar
+        open={Boolean(feedback.message)}
+        autoHideDuration={3000}
+        onClose={() => setFeedback((current) => ({ ...current, message: '' }))}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert
+          severity={feedback.severity}
+          onClose={() => setFeedback((current) => ({ ...current, message: '' }))}
+          sx={{ width: '100%' }}
+        >
+          {feedback.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

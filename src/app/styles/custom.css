@@ -117,16 +117,11 @@ body {
   background: none;
   border: none;
   padding: 8px 16px;
-  cursor: pointer;
   color: #6c757d;
   transition: all 0.2s;
   flex: 1;
   min-height: 48px; /* Minimum touch target size */
   -webkit-tap-highlight-color: transparent;
-}
-
-.bottom-nav-item:hover {
-  color: var(--platform-purple);
 }
 
 .bottom-nav-item.active {
@@ -245,11 +240,9 @@ textarea.form-control {
   width: 1.5rem;
   height: 1.5rem;
   margin-top: 0.125rem;
-  cursor: pointer;
 }
 
 .form-check-label {
-  cursor: pointer;
   padding-left: 0.5rem;
   user-select: none;
 }
@@ -277,18 +270,11 @@ textarea.form-control {
   height: 80px;
   object-fit: cover;
   border-radius: 8px;
-  cursor: pointer;
   transition: transform 0.2s;
 }
 
 .photo-thumbnail:active {
   transform: scale(0.95);
-}
-
-@media (min-width: 768px) {
-  .photo-thumbnail:hover {
-    transform: scale(1.05);
-  }
 }
 
 .camera-button {
@@ -301,7 +287,6 @@ textarea.form-control {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
   transition: all 0.3s;
   min-height: 48px;
   position: relative;
@@ -312,14 +297,6 @@ textarea.form-control {
   border-color: var(--platform-purple);
   background: linear-gradient(135deg, var(--platform-purple-light) 0%, #fff 100%);
   transform: scale(0.98);
-}
-
-@media (min-width: 768px) {
-  .camera-button:hover {
-    border-color: var(--platform-purple);
-    background: linear-gradient(135deg, var(--platform-purple-light) 0%, #fff 100%);
-    box-shadow: 0 4px 12px rgba(156, 39, 176, 0.15);
-  }
 }
 
 /* Camera button loading state */
@@ -369,17 +346,10 @@ img[alt="Captured"] {
 
 .room-item {
   transition: background-color 0.2s;
-  cursor: pointer;
 }
 
 .room-item:active {
   background-color: var(--platform-purple-light);
-}
-
-@media (min-width: 768px) {
-  .room-item:hover {
-    background-color: #f8f9fa;
-  }
 }
 
 .completion-check {

@@ -8,7 +8,9 @@ import {
   IconButton,
   Paper,
   Backdrop,
-  CircularProgress
+  CircularProgress,
+  Snackbar,
+  Alert
 } from '@mui/material';
 import { ArrowLeft, Camera, Upload, Trash2 } from 'lucide-react';
 
@@ -23,6 +25,7 @@ export default function VehicleAddPhotoScreen() {
   const navigate = useNavigate();
   const [capturedPhoto, setCapturedPhoto] = useState<CapturedMedia | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [feedback, setFeedback] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadInputRef = useRef<HTMLInputElement>(null);
 
@@ -39,7 +42,7 @@ export default function VehicleAddPhotoScreen() {
     if (!file) return;
 
     if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
-      alert('Please select an image or video file');
+      setFeedback('Choose a photo or video to continue.');
       return;
     }
 
@@ -212,8 +215,7 @@ export default function VehicleAddPhotoScreen() {
                 borderRadius: 3,
                 mb: 3,
                 border: '2px dashed #ccc',
-                cursor: 'pointer',
-                '&:hover': {
+                '&:active': {
                   bgcolor: '#eeeeee',
                   borderColor: '#9C27B0'
                 }
@@ -288,7 +290,7 @@ export default function VehicleAddPhotoScreen() {
                   right: 10,
                   color: '#fff',
                   backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                  '&:hover': {
+                  '&:active': {
                     backgroundColor: 'rgba(0, 0, 0, 0.7)'
                   }
                 }}
@@ -316,6 +318,17 @@ export default function VehicleAddPhotoScreen() {
           </Box>
         )}
       </Container>
+
+      <Snackbar
+        open={Boolean(feedback)}
+        autoHideDuration={3000}
+        onClose={() => setFeedback('')}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert severity="info" onClose={() => setFeedback('')} sx={{ width: '100%' }}>
+          {feedback}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }

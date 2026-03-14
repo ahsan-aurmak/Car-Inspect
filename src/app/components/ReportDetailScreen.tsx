@@ -13,7 +13,8 @@ import {
   Checkbox,
   IconButton,
   Drawer,
-  CircularProgress
+  CircularProgress,
+  Snackbar
 } from '@mui/material';
 import { ArrowLeft, Building2, Calendar, Clock, ExternalLink, Trash2, Upload, CheckSquare, Check, X, AlertTriangle, Share2, FileDown, CheckCircle2 } from 'lucide-react';
 import { generateInspectionPDF } from '../utils/pdfGenerator';
@@ -24,6 +25,10 @@ export default function ReportDetailScreen() {
   const [report, setReport] = useState<any>(null);
   const [showDeleteDrawer, setShowDeleteDrawer] = useState(false);
   const [selectedObservations, setSelectedObservations] = useState<Set<string>>(new Set());
+  const [feedback, setFeedback] = useState<{ message: string; severity: 'success' | 'error' | 'info' }>({
+    message: '',
+    severity: 'info',
+  });
 
   useEffect(() => {
     // Load report from localStorage
@@ -43,7 +48,7 @@ export default function ReportDetailScreen() {
 
   const handleOpenPlatform = () => {
     if (report?.platformLink) {
-      window.open(report.platformLink, '_blank');
+      window.location.assign(report.platformLink);
     }
   };
 
@@ -96,7 +101,7 @@ export default function ReportDetailScreen() {
 
   const handleSubmitToPlatform = () => {
     if (selectedObservations.size === 0) {
-      alert('Please select at least one observation to submit to Platform');
+      setFeedback({ message: 'Select at least one observation to continue.', severity: 'info' });
       return;
     }
 
@@ -155,7 +160,7 @@ export default function ReportDetailScreen() {
       );
     } catch (error) {
       console.error('Error generating PDF:', error);
-      alert('Failed to generate PDF. Please try again.');
+      setFeedback({ message: 'PDF export failed. Please try again.', severity: 'error' });
     }
   };
 
@@ -188,9 +193,9 @@ export default function ReportDetailScreen() {
   const copyToClipboard = (text: string) => {
     if (navigator.clipboard) {
       navigator.clipboard.writeText(text).then(() => {
-        alert('Link copied to clipboard!');
+        setFeedback({ message: 'Link copied to clipboard.', severity: 'success' });
       }).catch(() => {
-        alert('Failed to copy link');
+        setFeedback({ message: 'Could not copy the link.', severity: 'error' });
       });
     } else {
       // Fallback for older browsers
@@ -200,9 +205,9 @@ export default function ReportDetailScreen() {
       textArea.select();
       try {
         document.execCommand('copy');
-        alert('Link copied to clipboard!');
+        setFeedback({ message: 'Link copied to clipboard.', severity: 'success' });
       } catch (err) {
-        alert('Failed to copy link');
+        setFeedback({ message: 'Could not copy the link.', severity: 'error' });
       }
       document.body.removeChild(textArea);
     }
@@ -806,6 +811,21 @@ export default function ReportDetailScreen() {
           </Box>
         </Box>
       </Drawer>
+
+      <Snackbar
+        open={Boolean(feedback.message)}
+        autoHideDuration={3000}
+        onClose={() => setFeedback((current) => ({ ...current, message: '' }))}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert
+          severity={feedback.severity}
+          onClose={() => setFeedback((current) => ({ ...current, message: '' }))}
+          sx={{ width: '100%' }}
+        >
+          {feedback.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
